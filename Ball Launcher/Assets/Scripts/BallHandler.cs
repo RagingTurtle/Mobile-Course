@@ -19,6 +19,7 @@ public class BallHandler : MonoBehaviour
             return;
         }
         Vector2 TouchPos = Touchscreen.current.primaryTouch.position.ReadValue();
-        Debug.Log(TouchPos);
+        Vector3 WorldPos = Camera.main.ScreenToWorldPoint(TouchPos);
+        Debug.Log(WorldPos);
     }
 }
