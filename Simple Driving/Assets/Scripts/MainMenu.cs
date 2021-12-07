@@ -4,18 +4,27 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] TMP_Text scoreText;
-    [SerializeField] TMP_Text enegryText;
+    [SerializeField] TMP_Text energyText;
     [SerializeField] int maxEnergy;
     [SerializeField] int energyRecharge;
+    [SerializeField] AndroidNotificationHandler androidNotificationHandler;
+    [SerializeField] private Button playButton;
     int energy;
     const string energyKey = "Energy";
     const string energyReadyKey = "EnergyReady";
     private void Start()
     {
+        OnApplicationFocus(true);
+    }
+    private void OnApplicationFocus(bool focusStatus)
+    {
+        if (!focusStatus) { return; }
+        CancelInvoke();
         scoreText.text = "High Score:\n" + PlayerPrefs.GetInt(ScoreSystem.HighScoreKey, 0).ToString();
 
         energy = PlayerPrefs.GetInt(energyKey, maxEnergy);
@@ -29,18 +38,40 @@ public class MainMenu : MonoBehaviour
                 energy = maxEnergy;
                 PlayerPrefs.SetInt(energyKey, energy);
             }
+            else
+            {
+                Invoke(nameof(EnergyRecharged), (energyReady - DateTime.Now).Seconds);
+            }
+
         }
-        enegryText.text = "Play (" + energy + ")";
     }
+
+    private void Update()
+    {
+        playButton.interactable = (energy > 0);
+        energyText.text = "Play (" + energy + ")";
+    }
+    private void EnergyRecharged()
+    {
+        energy = maxEnergy;
+        PlayerPrefs.SetInt(energyKey, energy);
+    }
+
     public void Play()
     {
-        if (energy <= 0) { return; };
+        if (energy < 1) { return; }
+
         energy--;
+
         PlayerPrefs.SetInt(energyKey, energy);
-        if (energy <= 0)
+
+        if (energy == 0)
         {
-            PlayerPrefs.SetString(energyReadyKey, DateTime.Now.AddMinutes(energyRecharge).ToString());
+            DateTime energyReady = DateTime.Now.AddMinutes(energyRecharge);
+            PlayerPrefs.SetString(energyReadyKey, energyReady.ToString());
+            androidNotificationHandler.ScheduleNotification(energyReady);
         }
+
         SceneManager.LoadScene("Game");
     }
 }
