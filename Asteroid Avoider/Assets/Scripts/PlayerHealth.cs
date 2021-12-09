@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [SerializeField] GameHandler gameHandler;
     public void Crash()
     {
         gameObject.SetActive(false);
+        gameHandler.EndGame();
     }
 }
