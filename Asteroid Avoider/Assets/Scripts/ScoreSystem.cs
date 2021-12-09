@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System;
 
 public class ScoreSystem : MonoBehaviour
 {
@@ -25,5 +26,10 @@ public class ScoreSystem : MonoBehaviour
     {
         isCrashed = true;
         scoreText.text = string.Empty;
+    }
+
+    internal void resetCrash()
+    {
+        isCrashed = false;
     }
 }
